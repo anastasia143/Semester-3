@@ -14,10 +14,18 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainWindow.cpp \
-    computer.cpp
+    computer.cpp \
+    computers/windows.cpp \
+    computers/mac.cpp \
+    computers/linux.cpp \
+    network.cpp
 
 HEADERS  += mainWindow.h \
-    computer.h
+    computer.h \
+    computers/windows.h \
+    computers/mac.h \
+    computers/linux.h \
+    network.h
 
 FORMS    += mainwindow.ui
 

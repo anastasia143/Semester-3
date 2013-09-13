@@ -1,9 +1,10 @@
 #pragma once
 #include <QMainWindow>
-#include "computer.h"
-#include <iostream>
-#include <fstream>
-#include <string.h>
+#include "computers/linux.h"
+#include "computers/mac.h"
+#include "computers/windows.h"
+#include "network.h"
+
 
 namespace Ui {
 class MainWindow;
@@ -18,18 +19,13 @@ public:
 	~MainWindow();
 
 public slots:
-	void runVirus();
 	void killComputer(int);
-
-signals:
-	void computerIsInfected(int);
+	void setInstigator(QString);
+	void setCurrentComputer(int);
+	void setCurrentResult(bool);
+	void onEndOfTry();
 	
 private:
 	Ui::MainWindow *ui;
-	Computer *network; // All computers with network
-	char **networkConnection; // Adjacency matrix for connections between computers
-	bool *infectedOnThisStep; // Passed and infected computers on this step of work
-
-	void fillNetworkConnectionMatrix();
-	void startInfection(int number);
+	Network *network;
 };

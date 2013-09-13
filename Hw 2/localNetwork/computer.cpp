@@ -6,10 +6,10 @@ Computer::Computer()
 	isInfected = false;
 }
 
-bool Computer::tryToInfect(int probabilityToBeInfected)
+bool Computer::tryToInfect()
 {
-	int randNumber = rand() % 101 + 1;
-	isInfected = (randNumber <= probabilityToBeInfected);
+	int randNumber = rand() % 100 + 1;
+	isInfected = randNumber <= infectionRisk;
 	return isInfected;
 }
 
@@ -26,4 +26,14 @@ void Computer::setOS(int number)
 bool Computer::getIsInfected()
 {
 	return isInfected;
+}
+
+int Computer::getInfectionRisk()
+{
+	return infectionRisk;
+}
+
+void Computer::setInfectionRisk(int number)
+{
+	infectionRisk = number;
 }

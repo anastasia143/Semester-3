@@ -8,12 +8,15 @@ class Computer
 {
 public:
 	Computer();
-	bool tryToInfect(int probabilityToBeInfected);
+	bool tryToInfect();
 	int getOS();
-	void setOS(int number);
 	bool getIsInfected();
+	int getInfectionRisk();
+	void setInfectionRisk(int number);
+	void setOS(int number);
 
-private:
+protected:
 	bool isInfected;
 	int operationSystem; // 1 - Windows; 2 - Linux; 3 - Mac OS
+	int infectionRisk;
 };

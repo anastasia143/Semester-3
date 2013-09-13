@@ -7,79 +7,48 @@ MainWindow::MainWindow(QWidget *parent) :
 {
 	ui->setupUi(this);
 	setWindowTitle("Local Network");
-	infectedOnThisStep = new bool[16];
+	network = new Network;
+	ui->stepButton->setEnabled(false);
 
-	network = new Computer[16];
-	network[4].setOS(1);
-	network[13].setOS(1);
-	network[15].setOS(1);
-	network[3].setOS(3);
-	network[5].setOS(3);
-	network[6].setOS(3);
-	network[11].setOS(3);
-
-	networkConnection = new char*[16];
-	for(int i = 0; i < 16; i++)
-		networkConnection[i] = new char[16];
-	fillNetworkConnectionMatrix();
-
-	connect(ui->startButton, SIGNAL(clicked()), this, SLOT(runVirus()));
-	connect(this, SIGNAL(computerIsInfected(int)), SLOT(killComputer(int)));
+	connect(network, SIGNAL(computerIsInfected(int)), this, SLOT(killComputer(int)));
+	connect(network, SIGNAL(giveInstigator(QString)), this, SLOT(setInstigator(QString)));
+	connect(network, SIGNAL(currentComputer(int)), this, SLOT(setCurrentComputer(int)));
+	connect(network, SIGNAL(currentResult(bool)), this, SLOT(setCurrentResult(bool)));
+	connect(network, SIGNAL(endOftry()), this, SLOT(onEndOfTry()));
+	connect(ui->spinBox_linux, SIGNAL(valueChanged(int)), network, SLOT(setLinuxChance(int)));
+	connect(ui->spinBox_mac, SIGNAL(valueChanged(int)), network, SLOT(setMacChance(int)));
+	connect(ui->spinBox_windows, SIGNAL(valueChanged(int)), network, SLOT(setWindowsChance(int)));
+	connect(ui->stepButton, SIGNAL(clicked()), network, SLOT(nextStep()));
+	connect(ui->startButton, SIGNAL(clicked()), network, SLOT(runVirus()));
 }
 
-void MainWindow::runVirus()
+void MainWindow::setInstigator(QString instigator)
 {
-	int randNumber = rand() % 15 + 1;
-	ui->instigator->setText("Computer " + QString::number(randNumber));
-
-	for(int i = 0; i < 16; i++)
-		infectedOnThisStep[i] = false;
-	startInfection(randNumber);
+	ui->instigator->setText("Computer " + instigator);
+	ui->startButton->setEnabled(false);
+	ui->stepButton->setEnabled(true);
 }
 
-void MainWindow::startInfection(int number)
+void MainWindow::setCurrentComputer(int number)
 {
-	int chance = 0;
-	switch(network[number].getOS())
-	{
-	case 1:
-		chance = ui->spinBox_windows->value();
-		break;
-	case 2:
-		chance = ui->spinBox_linux->value();
-		break;
-	case 3:
-		chance = ui->spinBox_mac->value();
-		break;
-	}
-
-	if ((network[number].getIsInfected()|| network[number].tryToInfect(chance))
-														&& (!infectedOnThisStep[number]))
-	{
-		emit computerIsInfected(number);
-		infectedOnThisStep[number] = true;
-		for(int i = 1; i < 16; i++)
-			if (((int)networkConnection[number][i] == 49))
-					startInfection(i);
-	}
+	ui->currentComputer->setText(QString::number(number));
 }
 
-void MainWindow::fillNetworkConnectionMatrix()
+void MainWindow::setCurrentResult(bool result)
 {
-	std::ifstream file;
-	char str[16];
-	file.open("networkMatrix.txt");
+	if(result)
+		ui->currentResult->setText("Success!");
+	else
+		ui->currentResult->setText("Fail!");
+}
 
-	for(int i = 0; i < 16; i++)
-		str[i] = NULL;
-	for(int i = 1; i < 16; i++)
-	{
-		file >> str;
-		for(int k = 1; k < 16; k++)
-			networkConnection[i][k] = str[k - 1];
-		for(int c = 0; c < 16; c++)
-			str[c] = NULL;
-	}
+void MainWindow::onEndOfTry()
+{
+	ui->startButton->setEnabled(true);
+	ui->stepButton->setEnabled(false);
+	ui->instigator->setText("End of try");
+	ui->currentComputer->setText("");
+	ui->currentResult->setText("");
 }
 
 void MainWindow::killComputer(int number)
@@ -137,7 +106,5 @@ void MainWindow::killComputer(int number)
 MainWindow::~MainWindow()
 {
 	delete network;
-	delete networkConnection;
-	delete infectedOnThisStep;
 	delete ui;
 }
